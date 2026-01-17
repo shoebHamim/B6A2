@@ -1,5 +1,7 @@
 import server from "./app";
+import config from "./config";
+const { port: serverPort } = config;
 
-server.listen(3000, () => {
-  console.log("Server running on 3000");
+server.listen(serverPort, () => {
+  console.log(`server running on ${serverPort}`);
 });
