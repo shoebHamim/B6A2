@@ -1,4 +1,4 @@
-`CREATE TABLE IF NOT EXISTS users(
+const usersTableCreateQuery=`CREATE TABLE IF NOT EXISTS users(
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
@@ -9,3 +9,5 @@
   CONSTRAINT email_lowercase CHECK (email=LOWER(email)),
   CONSTRAINT role_enum CHECK(role IN ('customer','admin'))
 )`
+
+export default usersTableCreateQuery;
