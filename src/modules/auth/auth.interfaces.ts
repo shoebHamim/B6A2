@@ -6,3 +6,9 @@ export interface userInterface {
   role?: "customer" | "admin";
 }
 
+export const roles={
+  ADMIN:'admin',
+  CUSTOMER:'customer'
+
+}
+
