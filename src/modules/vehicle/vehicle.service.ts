@@ -13,9 +13,11 @@ const getAllVehicles = async () => {
     );
   }
 };
-const getVehicleById = async (id: string) => {
+const getVehicleById = async (vehicleId: string) => {
   try {
-    const result = await pool.query(`SELECT * FROM vehicles where id=$1`, [id]);
+    const result = await pool.query(`SELECT * FROM vehicles where id=$1`, [
+      vehicleId,
+    ]);
     return result.rowCount ? result.rows[0] : null;
   } catch (error) {
     throw new Error(
@@ -61,7 +63,7 @@ const createNewVehicle = async (vehicleParams: vehicleInterface) => {
 };
 
 const updateVehicleById = async (
-  id: string,
+  vehicleId: string,
   vehicleParams: Partial<vehicleInterface>,
 ) => {
   try {
@@ -90,7 +92,7 @@ const updateVehicleById = async (
         registration_number,
         daily_rent_price,
         availability_status,
-        id,
+        vehicleId,
       ],
     );
     return result.rowCount ? result.rows[0] : null;
@@ -103,9 +105,11 @@ const updateVehicleById = async (
   }
 };
 
-const deleteVehicleById = async (id: string) => {
+const deleteVehicleById = async (vehicleId: string) => {
   try {
-    const result = await pool.query(`DELETE FROM vehicles WHERE id=$1`, [id]);
+    const result = await pool.query(`DELETE FROM vehicles WHERE id=$1`, [
+      vehicleId,
+    ]);
     console.log(result);
     return result.rowCount ? true : null;
   } catch (error) {

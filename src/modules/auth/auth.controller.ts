@@ -30,7 +30,7 @@ const signIn = async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: 500,
-      message: "Signin failed!" ,
+      message: "Signin failed!",
       errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
@@ -60,7 +60,7 @@ const signUp = async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: 500,
-      message: 'User registration failed!',
+      message: "User registration failed!",
       errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }

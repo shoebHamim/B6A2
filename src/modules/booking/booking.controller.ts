@@ -89,11 +89,12 @@ const getAllBookings = async (req: Request, res: Response) => {
 };
 const updateBookingById = async (req: Request, res: Response) => {
   try {
-    const {
-      status
-    } = req.body;
+    const { status } = req.body;
     const { bookingId } = req.params;
-    const result = await bookingServices.updateBookingById(bookingId as string, status );
+    const result = await bookingServices.updateBookingById(
+      bookingId as string,
+      status,
+    );
     if (result) {
       sendResponse(res, {
         success: true,

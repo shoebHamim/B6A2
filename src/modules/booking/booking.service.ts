@@ -13,8 +13,8 @@ const createBooking = async (
     const endDate = new Date(rent_end_date);
     const diffInMs = endDate.getTime() - startDate.getTime();
     const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
-    console.log({diffInDays});
-    console.log({dailyRent});
+    console.log({ diffInDays });
+    console.log({ dailyRent });
     const totalPrice = diffInDays * dailyRent;
     const result = await pool.query(
       `
@@ -54,22 +54,15 @@ const getAllBookings = async () => {
     );
   }
 };
-const updateBookingById = async (
-  bookingId: string,
-  bookingStatus:string,
-) => {
+const updateBookingById = async (bookingId: string, bookingStatus: string) => {
   try {
-
     const result = await pool.query(
       `UPDATE bookings
       SET  status=COALESCE($1)
       WHERE id=$2
       RETURNING *
       `,
-      [
-        bookingStatus,
-        bookingId
-      ],
+      [bookingStatus, bookingId],
     );
     return result.rowCount ? result.rows[0] : null;
   } catch (error) {
@@ -84,5 +77,5 @@ const updateBookingById = async (
 export const bookingServices = {
   createBooking,
   getAllBookings,
-  updateBookingById
+  updateBookingById,
 };

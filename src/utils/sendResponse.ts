@@ -5,7 +5,7 @@ type TResponseParams<T> = {
   message: string;
   statusCode: number;
   data?: T;
-  errors?:T;
+  errors?: T;
 };
 
 const sendResponse = <T>(res: Response, data: TResponseParams<T>) => {
@@ -13,7 +13,7 @@ const sendResponse = <T>(res: Response, data: TResponseParams<T>) => {
     success: data.success,
     message: data.message,
     data: data.data,
-    errors:data.errors
+    errors: data.errors,
   });
 };
 
