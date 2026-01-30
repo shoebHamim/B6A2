@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
 import sendResponse from "../../utils/sendResponse";
+import { bookingServices } from "../booking/booking.service";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -15,27 +16,27 @@ const getAllUsers = async (req: Request, res: Response) => {
     }
     return sendResponse(res, {
       success: true,
-      statusCode: 404,
-      message: "No user data found!",
-      data: allUsers,
+      statusCode: 200,
+      message: "No users found!",
+      data: [],
     });
   } catch (error) {
     return sendResponse(res, {
       success: true,
       statusCode: 500,
-      message: error instanceof Error ? error.message : "Internal Server Error",
-      data: [],
+      message: "Failed to retrieved users!",
+      errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
 
 const updateUser = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { userId } = req.params;
   const { name, email, phone, role } = req.body;
   try {
     const result = await userServices.updateUser(
       { name, email, phone, role },
-      id as string,
+      userId as string,
     );
     if (result) {
       return sendResponse(res, {
@@ -49,7 +50,7 @@ const updateUser = async (req: Request, res: Response) => {
       success: true,
       statusCode: 404,
       message: "No user found with the id!",
-      data: [],
+      errors: [],
     });
   } catch (error) {
     return sendResponse(res, {
@@ -61,9 +62,20 @@ const updateUser = async (req: Request, res: Response) => {
   }
 };
 const deleteUser = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { userId } = req.params;
   try {
-    const result = await userServices.deleteUser(id as string);
+    const activeBookings = await bookingServices.getActiveBookingsById(
+      userId as string,
+    );
+    if (activeBookings) {
+      return sendResponse(res, {
+        success: false,
+        statusCode: 400,
+        message: "Failed to delete User",
+        errors: "User has active booking",
+      });
+    }
+    const result = await userServices.deleteUser(userId as string);
     if (result) {
       return sendResponse(res, {
         success: true,
@@ -72,17 +84,17 @@ const deleteUser = async (req: Request, res: Response) => {
       });
     }
     return sendResponse(res, {
-      success: true,
+      success: false,
       statusCode: 404,
-      message: "No user found!",
-      data: [],
+      message: "Failed to delete User",
+      errors: "No user found",
     });
   } catch (error) {
     return sendResponse(res, {
-      success: true,
+      success: false,
       statusCode: 500,
-      message: error instanceof Error ? error.message : "Internal Server Error",
-      data: [],
+      message: "Failed to delete User",
+      errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };

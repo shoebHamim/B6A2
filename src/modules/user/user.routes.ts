@@ -7,14 +7,10 @@ const router = Router();
 
 router.get("/", auth(roles.ADMIN), userControllers.getAllUsers);
 router.put(
-  "/:id",
+  "/:userId",
   auth(roles.ADMIN, roles.CUSTOMER),
   userControllers.updateUser,
 );
-router.delete(
-  "/:id",
-  auth(roles.ADMIN, roles.CUSTOMER),
-  userControllers.deleteUser,
-);
+router.delete("/:userId", auth(roles.ADMIN), userControllers.deleteUser);
 
 export const userRoutes = router;

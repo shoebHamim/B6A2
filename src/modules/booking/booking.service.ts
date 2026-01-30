@@ -50,7 +50,7 @@ const getAllBookings = async () => {
     throw new Error(
       error instanceof Error
         ? error.message
-        : "Error fetching vehicles from DB!",
+        : "Error fetching bookings from DB!",
     );
   }
 };
@@ -69,7 +69,25 @@ const updateBookingById = async (bookingId: string, bookingStatus: string) => {
     throw new Error(
       error instanceof Error
         ? error.message
-        : "Error fetching vehicles from DB!",
+        : "Error fetching bookings from DB!",
+    );
+  }
+};
+const getActiveBookingsById = async (userId: string) => {
+  try {
+    const activeBookings = await pool.query(
+      `SELECT * FROM bookings
+      WHERE status= 'active'
+      AND customer_id=$1
+      `,
+      [userId],
+    );
+    return activeBookings.rowCount ? activeBookings.rows[0] : null;
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Error fetching active bookings from DB!",
     );
   }
 };
@@ -78,4 +96,5 @@ export const bookingServices = {
   createBooking,
   getAllBookings,
   updateBookingById,
+  getActiveBookingsById,
 };

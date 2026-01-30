@@ -3,7 +3,9 @@ import { userInterface } from "../auth/auth.interfaces";
 
 const getAllUsers = async () => {
   try {
-    const result = await pool.query(`SELECT *  FROM  users`);
+    const result = await pool.query(
+      `SELECT id,name,email,phone,role  FROM  users`,
+    );
     if (result.rowCount !== 0) {
       return result.rows;
     }
@@ -14,7 +16,10 @@ const getAllUsers = async () => {
       : new Error("Failed to retrieve users from DB!");
   }
 };
-const updateUser = async (userParams: Partial<userInterface>, id: string) => {
+const updateUser = async (
+  userParams: Partial<userInterface>,
+  userId: string,
+) => {
   try {
     const { name, email, phone, role } = userParams;
     const result = await pool.query(
@@ -26,7 +31,7 @@ const updateUser = async (userParams: Partial<userInterface>, id: string) => {
     WHERE id=$5
     RETURNING name,email,phone,role
     `,
-      [name, email, phone, role, id],
+      [name, email, phone, role, userId],
     );
     if (result.rowCount !== 0) {
       return result.rows[0];
@@ -38,9 +43,9 @@ const updateUser = async (userParams: Partial<userInterface>, id: string) => {
       : new Error("Failed to update user on DB!");
   }
 };
-const deleteUser = async (id: string) => {
+const deleteUser = async (userId: string) => {
   try {
-    const result = await pool.query(`DELETE FROM  users WHERE id=$1`, [id]);
+    const result = await pool.query(`DELETE FROM  users WHERE id=$1`, [userId]);
     if (result.rowCount !== 0) {
       return true;
     }
