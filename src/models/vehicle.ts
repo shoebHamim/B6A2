@@ -1,4 +1,4 @@
-const vehiclesTableCreateQuery=`CREATE TABLE IF NOT EXISTS vehicles(
+const vehiclesTableCreateQuery = `CREATE TABLE IF NOT EXISTS vehicles(
   id SERIAL PRIMARY KEY,
   vehicle_name VARCHAR(100) NOT NULL,
   type VARCHAR(50) NOT NULL,
@@ -9,6 +9,6 @@ const vehiclesTableCreateQuery=`CREATE TABLE IF NOT EXISTS vehicles(
   CONSTRAINT type_enum CHECK(type in ('car','bike','van','SUV')),
   CONSTRAINT daily_rent_price_positive CHECK(daily_rent_price>0),
   CONSTRAINT availability_status_enum CHECK (availability_status in ('available','booked'))
-)`
+)`;
 
 export default vehiclesTableCreateQuery;

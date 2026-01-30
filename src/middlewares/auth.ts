@@ -7,8 +7,8 @@ import { userServices } from "../modules/user/user.service";
 
 const auth = (...allowedRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return sendResponse(res, {
         success: false,
         statusCode: 401,
@@ -16,6 +16,7 @@ const auth = (...allowedRoles: string[]) => {
         data: [],
       });
     }
+    const token = authHeader.split(' ')[1] as string;
     try {
       const decoded: any = jwt.verify(token, config.json_secret as string);
       if (!allowedRoles.includes(decoded.role)) {
@@ -26,17 +27,20 @@ const auth = (...allowedRoles: string[]) => {
           data: [],
         });
       }
-      if(decoded.role===roles.CUSTOMER){
-        const {id}=req.params;
-        if(decoded.id!==id){
-           return sendResponse(res,{
-            success:false,
-            statusCode:403,
-            message:'You are not allowed to update this resource!',
-            data:[]
-          })
+      if (decoded.role === roles.CUSTOMER) {
+        const id = req.params.id||req.params.bookingId;
+        const fullRoute = req.baseUrl + req.path;
+        if (req.method === "PUT" && (fullRoute === `/api/v1/users/${id}`||fullRoute === `/api/v1/bookings/${id}`)) {
+          if (decoded.id !== id) {
+            return sendResponse(res, {
+              success: false,
+              statusCode: 403,
+              message: "You are not allowed to update this resource!",
+              data: [],
+            });
+          }
         }
-        req.body.role=decoded.role;
+        req.body.role = decoded.role;
       }
 
       next();

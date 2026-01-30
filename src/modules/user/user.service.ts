@@ -38,10 +38,10 @@ const updateUser = async (userParams: Partial<userInterface>, id: string) => {
       : new Error("Failed to update user on DB!");
   }
 };
-const deleteUser = async (id:string) => {
+const deleteUser = async (id: string) => {
   try {
-    const result = await pool.query(`DELETE FROM  users WHERE id=$1`,[id]);
-    if (result.rowCount!==0) {
+    const result = await pool.query(`DELETE FROM  users WHERE id=$1`, [id]);
+    if (result.rowCount !== 0) {
       return true;
     }
     return null;
@@ -51,9 +51,12 @@ const deleteUser = async (id:string) => {
       : new Error("Failed to delete user in DB!");
   }
 };
-const getUserById = async (id:string) => {
+const getUserById = async (id: string) => {
   try {
-    const result = await pool.query(`SELECT id,name,email,phone,role  FROM  users WHERE id=$1`,[id]);
+    const result = await pool.query(
+      `SELECT id,name,email,phone,role  FROM  users WHERE id=$1`,
+      [id],
+    );
     if (result.rowCount !== 0) {
       return result.rows[0];
     }
@@ -68,5 +71,5 @@ export const userServices = {
   getAllUsers,
   updateUser,
   deleteUser,
-  getUserById
+  getUserById,
 };

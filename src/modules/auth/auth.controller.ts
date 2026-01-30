@@ -40,15 +40,14 @@ const signUp = async (req: Request, res: Response) => {
     if (!req.body) {
       throw new Error("Missing Payload!");
     }
-    const {password}=req.body;
-    if(password?.length<6){
+    const { password } = req.body;
+    if (password?.length < 6) {
       sendResponse(res, {
-      statusCode: 400,
-      success: false,
-      message: "Password must be a minimum of 6 characters",
-      data: {},
-    });
-
+        statusCode: 400,
+        success: false,
+        message: "Password must be a minimum of 6 characters",
+        data: {},
+      });
     }
     const result = await authService.signUp(req.body);
     sendResponse(res, {

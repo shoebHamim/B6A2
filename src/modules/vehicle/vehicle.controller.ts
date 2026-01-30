@@ -73,8 +73,8 @@ const updateVehicleById = async (req: Request, res: Response) => {
       daily_rent_price,
       availability_status,
     } = req.body;
-    const {id}=req.params;
-    const result = await vehicleService.updateVehicleById(id as string,{
+    const { id } = req.params;
+    const result = await vehicleService.updateVehicleById(id as string, {
       vehicle_name,
       type,
       registration_number,
@@ -88,15 +88,13 @@ const updateVehicleById = async (req: Request, res: Response) => {
         message: "Vehicle updated successfully",
         data: result,
       });
-    }else{
-      sendResponse(res,
-        {
-          success:false,
-          statusCode:400,
-          message:'Update failed or no vehicle found with the provided ID',
-          data:{}
-        }
-      )
+    } else {
+      sendResponse(res, {
+        success: false,
+        statusCode: 400,
+        message: "Update failed or no vehicle found with the provided ID",
+        data: {},
+      });
     }
   } catch (error) {
     sendResponse(res, {
@@ -108,11 +106,9 @@ const updateVehicleById = async (req: Request, res: Response) => {
   }
 };
 
-
 const deleteVehicleById = async (req: Request, res: Response) => {
   try {
-
-    const {id}=req.params;
+    const { id } = req.params;
     const result = await vehicleService.deleteVehicleById(id as string);
     if (result) {
       sendResponse(res, {
@@ -121,15 +117,13 @@ const deleteVehicleById = async (req: Request, res: Response) => {
         message: "Vehicle deleted successfully",
         data: [],
       });
-    }else{
-      sendResponse(res,
-        {
-          success:false,
-          statusCode:400,
-          message:'Deletion failed or no vehicle found with the provided ID',
-          data:{}
-        }
-      )
+    } else {
+      sendResponse(res, {
+        success: false,
+        statusCode: 400,
+        message: "Deletion failed or no vehicle found with the provided ID",
+        data: {},
+      });
     }
   } catch (error) {
     sendResponse(res, {
@@ -140,7 +134,6 @@ const deleteVehicleById = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 const getVehicleById = async (req: Request, res: Response) => {
   try {
@@ -176,5 +169,5 @@ export const vehicleControllers = {
   createNewVehicle,
   getVehicleById,
   updateVehicleById,
-  deleteVehicleById
+  deleteVehicleById,
 };

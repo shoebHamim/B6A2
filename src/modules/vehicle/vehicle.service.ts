@@ -16,7 +16,7 @@ const getAllVehicles = async () => {
 const getVehicleById = async (id: string) => {
   try {
     const result = await pool.query(`SELECT * FROM vehicles where id=$1`, [id]);
-    return result.rowCount ? result.rows : null;
+    return result.rowCount ? result.rows[0] : null;
   } catch (error) {
     throw new Error(
       error instanceof Error
@@ -105,10 +105,7 @@ const updateVehicleById = async (
 
 const deleteVehicleById = async (id: string) => {
   try {
-    const result = await pool.query(
-      `DELETE FROM vehicles WHERE id=$1`,
-      [id],
-    );
+    const result = await pool.query(`DELETE FROM vehicles WHERE id=$1`, [id]);
     console.log(result);
     return result.rowCount ? true : null;
   } catch (error) {
@@ -125,5 +122,5 @@ export const vehicleService = {
   createNewVehicle,
   getVehicleById,
   updateVehicleById,
-  deleteVehicleById
+  deleteVehicleById,
 };
