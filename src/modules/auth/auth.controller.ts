@@ -12,7 +12,7 @@ const signIn = async (req: Request, res: Response) => {
       sendResponse(res, {
         success: false,
         message: "Incorrect email or password",
-        data: {},
+        errors: [],
         statusCode: 401,
       });
     }
@@ -30,8 +30,8 @@ const signIn = async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: 500,
-      message: error instanceof Error ? error.message : "Internal Server Error",
-      data: {},
+      message: "Signin failed!" ,
+      errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
@@ -60,8 +60,8 @@ const signUp = async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: 500,
-      message: error instanceof Error ? error.message : "N/A",
-      data: {},
+      message: 'User registration failed!',
+      errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
