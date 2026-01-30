@@ -120,6 +120,14 @@ const deleteVehicleById = async (vehicleId: string) => {
     );
   }
 };
+const validateVehicleAvailability = (vehicleStatus: string) => {
+  if (!vehicleStatus) {
+    throw new Error("No Vehicle found to book!");
+  }
+  if (vehicleStatus !== "available") {
+    throw new Error("Vehicle is not available to book!");
+  }
+};
 
 export const vehicleService = {
   getAllVehicles,
@@ -127,4 +135,5 @@ export const vehicleService = {
   getVehicleById,
   updateVehicleById,
   deleteVehicleById,
+  validateVehicleAvailability,
 };

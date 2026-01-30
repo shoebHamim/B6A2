@@ -7,74 +7,67 @@ const createBooking = async (req: Request, res: Response) => {
   try {
     const { customer_id, vehicle_id, rent_start_date, rent_end_date } =
       req.body;
-    // fetch the vehicle
     const vehicleInfo = await vehicleService.getVehicleById(vehicle_id);
-    if (!vehicleInfo) {
-      return sendResponse(res, {
-        success: false,
-        statusCode: 404,
-        message: "No Vehicle found to book!",
-        data: [],
-      });
-    }
-    if (vehicleInfo.availability_status !== "available") {
-      return sendResponse(res, {
-        success: false,
-        statusCode: 400,
-        message: "Vehicle is unavailable!",
-        data: [],
-      });
-    }
-    const dailyRent = vehicleInfo.daily_rent_price;
-
+    vehicleService.validateVehicleAvailability(
+      vehicleInfo?.availability_status,
+    );
+    const totalRent = bookingServices.calculateTotalRent(
+      rent_start_date,
+      rent_end_date,
+      vehicleInfo.daily_rent_price,
+    );
     const result = await bookingServices.createBooking(
       { customer_id, vehicle_id, rent_start_date, rent_end_date },
-      dailyRent,
+      totalRent,
     );
-    result["vehicle"] = {
-      vehicle_name: vehicleInfo.vehicle_name,
-      daily_rent_price: vehicleInfo.daily_rent_price,
-    };
-    if (result)
-      sendResponse(res, {
+    if (result) {
+      result["vehicle"] = {
+        vehicle_name: vehicleInfo.vehicle_name,
+        daily_rent_price: vehicleInfo.daily_rent_price,
+      };
+      return sendResponse(res, {
         success: true,
-        statusCode: 200,
+        statusCode: 201,
         message: "Booking created successfully",
         data: result,
       });
-    else {
+    } else {
       sendResponse(res, {
         success: true,
-        statusCode: 404,
-        message: "No vehicle found",
-        data: [],
+        statusCode: 500,
+        message: "Booking failed",
+        errors: "Internal Server Error",
       });
     }
   } catch (error) {
     sendResponse(res, {
       success: false,
-      statusCode: 500,
-      message: error instanceof Error ? error.message : "N/A",
-      data: [],
+      statusCode: 400,
+      message: "Booking failed",
+      errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
 
 const getAllBookings = async (req: Request, res: Response) => {
   try {
-    const result = await bookingServices.getAllBookings();
+    let userId = null;
+    if (req.user?.role === "customer") {
+      userId = req.user?.id;
+    }
+    const result = await bookingServices.getAllBookings(userId);
     if (result)
       sendResponse(res, {
         success: true,
         statusCode: 200,
-        message: "Data fetched successfully",
+        message: "Bookings retrieved successfully",
         data: result,
       });
     else {
       sendResponse(res, {
         success: true,
-        statusCode: 404,
-        message: "No vehicle found",
+        statusCode: 200,
+        message: "No booking found",
         data: [],
       });
     }
@@ -82,8 +75,8 @@ const getAllBookings = async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: 500,
-      message: error instanceof Error ? error.message : "N/A",
-      data: [],
+      message: "Failed to retrieve booking",
+      errors: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };

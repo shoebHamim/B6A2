@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import sendResponse from "../../utils/sendResponse";
 import { vehicleService } from "./vehicle.service";
+import { bookingServices } from "../booking/booking.service";
 
 const getAllVehicles = async (req: Request, res: Response) => {
   try {
@@ -109,6 +110,17 @@ const updateVehicleById = async (req: Request, res: Response) => {
 const deleteVehicleById = async (req: Request, res: Response) => {
   try {
     const { vehicleId } = req.params;
+    const activeBookings = await bookingServices.getActiveBookingsByVehicleId(
+      vehicleId as string,
+    );
+    if (activeBookings) {
+      sendResponse(res, {
+        success: false,
+        statusCode: 400,
+        message: "Vehicle deletion failed",
+        errors: "This vehicle has active booking",
+      });
+    }
     const result = await vehicleService.deleteVehicleById(vehicleId as string);
     if (result) {
       sendResponse(res, {
@@ -120,9 +132,9 @@ const deleteVehicleById = async (req: Request, res: Response) => {
     } else {
       sendResponse(res, {
         success: false,
-        statusCode: 400,
+        statusCode: 404,
         message: "Deletion Failed",
-        errors: "No vehicle found with the provided ID",
+        errors: "No vehicle found with the provided Id",
       });
     }
   } catch (error) {

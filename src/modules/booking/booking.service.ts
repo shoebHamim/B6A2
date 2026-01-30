@@ -3,20 +3,14 @@ import { bookingInterface } from "./booking.interfaces";
 
 const createBooking = async (
   bookingParams: bookingInterface,
-  dailyRent: number,
+  totalRent: number,
 ) => {
+  const client = await pool.connect();
   try {
     const { customer_id, vehicle_id, rent_start_date, rent_end_date } =
       bookingParams;
-    // calculate total price
-    const startDate = new Date(rent_start_date);
-    const endDate = new Date(rent_end_date);
-    const diffInMs = endDate.getTime() - startDate.getTime();
-    const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
-    console.log({ diffInDays });
-    console.log({ dailyRent });
-    const totalPrice = diffInDays * dailyRent;
-    const result = await pool.query(
+    await client.query("BEGIN");
+    const result = await client.query(
       `
       INSERT INTO bookings( 
       customer_id,
@@ -31,20 +25,38 @@ const createBooking = async (
            rent_end_date::text, 
            total_price, status
       `,
-      [customer_id, vehicle_id, rent_start_date, rent_end_date, totalPrice],
+      [customer_id, vehicle_id, rent_start_date, rent_end_date, totalRent],
     );
-    console.log(result.rows);
+
+    await client.query(
+      `UPDATE vehicles 
+       SET availability_status = 'booked' 
+       WHERE id = $1`,
+      [vehicle_id],
+    );
+
+    await client.query("COMMIT");
 
     return result.rows[0];
   } catch (error) {
+    await client.query("ROLLBACK");
     throw new Error(
       error instanceof Error ? error.message : "Error creating booking on DB!",
     );
+  } finally {
+    client.release();
   }
 };
-const getAllBookings = async () => {
+const getAllBookings = async (userId?: string) => {
   try {
-    const result = await pool.query(`SELECT * FROM bookings`);
+    let result;
+    if (userId) {
+      result = await pool.query(`SELECT * FROM bookings where customer_id=$1`, [
+        userId,
+      ]);
+    } else {
+      result = await pool.query(`SELECT * FROM bookings`);
+    }
     return result.rowCount ? result.rows : null;
   } catch (error) {
     throw new Error(
@@ -55,25 +67,45 @@ const getAllBookings = async () => {
   }
 };
 const updateBookingById = async (bookingId: string, bookingStatus: string) => {
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
+    await client.query("BEGIN");
+    const result = await client.query(
       `UPDATE bookings
       SET  status=COALESCE($1)
       WHERE id=$2
-      RETURNING *
+      RETURNING id,customer_id,vehicle_id,rent_start_date::TEXT,rent_end_date::TEXT,total_price,status
       `,
       [bookingStatus, bookingId],
     );
-    return result.rowCount ? result.rows[0] : null;
+    if (!result.rowCount) return null;
+
+    if (bookingStatus === "returned" || bookingStatus === "cancelled") {
+      await client.query(
+        `UPDATE vehicles 
+       SET availability_status = 'available' 
+       WHERE id = $1`,
+        [result.rows[0].vehicle_id],
+      );
+      result.rows[0]["vehicle"] = {
+        availability_status: "available",
+      };
+    }
+    await client.query("COMMIT");
+
+    return result.rows[0];
   } catch (error) {
+    await client.query("ROLLBACK");
     throw new Error(
       error instanceof Error
         ? error.message
         : "Error fetching bookings from DB!",
     );
+  } finally {
+    client.release();
   }
 };
-const getActiveBookingsById = async (userId: string) => {
+const getActiveBookingsByUserId = async (userId: string) => {
   try {
     const activeBookings = await pool.query(
       `SELECT * FROM bookings
@@ -91,10 +123,54 @@ const getActiveBookingsById = async (userId: string) => {
     );
   }
 };
+const getBookingById = async (bookingId: string) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM bookings
+      WHERE id=$1
+      `,
+      [bookingId],
+    );
+    return result.rowCount ? result.rows[0] : null;
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Error fetching  booking from DB!",
+    );
+  }
+};
+
+const calculateTotalRent = (
+  rentStartDate: string,
+  rentEndDate: string,
+  dailyRent: number,
+) => {
+  const rentStartDateObj = new Date(rentStartDate);
+  const rentEndDateObj = new Date(rentEndDate);
+  if (rentStartDateObj > rentEndDateObj) {
+    throw new Error("Rent start date must be before rent end date");
+  }
+  const diffInMs = rentEndDateObj.getTime() - rentStartDateObj.getTime();
+  const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+  const totalPrice = diffInDays * dailyRent;
+  return totalPrice;
+};
+
+const getActiveBookingsByVehicleId = async (vehicleId: string) => {
+  const result = await pool.query(
+    `SELECT * FROM bookings WHERE vehicle_id=$1`,
+    [vehicleId],
+  );
+  return result.rowCount ? result.rows : null;
+};
 
 export const bookingServices = {
   createBooking,
   getAllBookings,
   updateBookingById,
-  getActiveBookingsById,
+  getActiveBookingsByUserId,
+  calculateTotalRent,
+  getBookingById,
+  getActiveBookingsByVehicleId,
 };

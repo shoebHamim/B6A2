@@ -6,6 +6,7 @@ import bookingsTableCreateQuery from "../models/booking";
 
 export const pool = new Pool({
   connectionString: config.postgresConnectionStr,
+  options: "-c timezone=Asia/Dhaka",
 });
 
 const initDB = async () => {

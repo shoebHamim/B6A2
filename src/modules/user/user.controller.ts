@@ -64,7 +64,7 @@ const updateUser = async (req: Request, res: Response) => {
 const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   try {
-    const activeBookings = await bookingServices.getActiveBookingsById(
+    const activeBookings = await bookingServices.getActiveBookingsByUserId(
       userId as string,
     );
     if (activeBookings) {
