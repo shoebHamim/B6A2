@@ -2,8 +2,10 @@ import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import sendResponse from "../utils/sendResponse";
 import config from "../config";
+import { roles } from "../modules/auth/auth.interfaces";
+import { userServices } from "../modules/user/user.service";
 
-const auth = (...roles: string[]) => {
+const auth = (...allowedRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
     if (!token) {
@@ -16,7 +18,7 @@ const auth = (...roles: string[]) => {
     }
     try {
       const decoded: any = jwt.verify(token, config.json_secret as string);
-      if (!roles.includes(decoded.role)) {
+      if (!allowedRoles.includes(decoded.role)) {
         return sendResponse(res, {
           statusCode: 403,
           success: false,
@@ -24,6 +26,19 @@ const auth = (...roles: string[]) => {
           data: [],
         });
       }
+      if(decoded.role===roles.CUSTOMER){
+        const {id}=req.params;
+        if(decoded.id!==id){
+           return sendResponse(res,{
+            success:false,
+            statusCode:403,
+            message:'You are not allowed to update this resource!',
+            data:[]
+          })
+        }
+        req.body.role=decoded.role;
+      }
+
       next();
     } catch (err) {
       sendResponse(res, {

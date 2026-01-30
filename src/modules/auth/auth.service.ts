@@ -42,6 +42,7 @@ const signIn = async (email: string, password: string): Promise<any> => {
 
       const token = jwt.sign(
         {
+          id: fetchedUser.id.toString(),
           name: fetchedUser.name,
           email: fetchedUser.email,
           role: fetchedUser.role,

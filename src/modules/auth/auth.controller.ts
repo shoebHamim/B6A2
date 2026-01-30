@@ -30,7 +30,7 @@ const signIn = async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: 500,
-      message: error instanceof Error ? error.message : "N/A",
+      message: error instanceof Error ? error.message : "Internal Server Error",
       data: {},
     });
   }
