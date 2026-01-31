@@ -18,7 +18,7 @@ catch (err) {
     throw new Error("error connection db" + err);
 }
 app.get("/", (req, res) => {
-    res.send("hello world!");
+    res.send("Welcome to Vehicle Rental System!\nYou've hit the root endpoint.");
 });
 app.use("/api/v1/auth/", auth_routes_1.authRoutes);
 app.use("/api/v1/vehicles", vehicle_routes_1.vehicleRoutes);

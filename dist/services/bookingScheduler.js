@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const node_cron_1 = __importDefault(require("node-cron"));
 const db_1 = require("../config/db");
 const startBookingScheduler = () => __awaiter(void 0, void 0, void 0, function* () {
-    // cronjob will run every hour on 0 minute
-    node_cron_1.default.schedule("0 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    // cronjob will at everyday at midnight
+    node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
         const client = yield db_1.pool.connect();
         try {
             yield client.query("BEGIN");

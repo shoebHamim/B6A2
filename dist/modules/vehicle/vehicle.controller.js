@@ -86,7 +86,7 @@ const updateVehicleById = (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (result) {
             (0, sendResponse_1.default)(res, {
                 success: true,
-                statusCode: 201,
+                statusCode: 200,
                 message: "Vehicle updated successfully",
                 data: result,
             });
@@ -125,7 +125,7 @@ const deleteVehicleById = (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (result) {
             (0, sendResponse_1.default)(res, {
                 success: true,
-                statusCode: 201,
+                statusCode: 200,
                 message: "Vehicle deleted successfully",
             });
         }

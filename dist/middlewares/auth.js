@@ -58,8 +58,6 @@ const auth = (...allowedRoles) => {
                 else if (req.method === "PUT" && baseUrl === "/api/v1/bookings") {
                     const { bookingId } = req.params;
                     const fetchedBooking = yield booking_service_1.bookingServices.getBookingById(bookingId);
-                    console.log("fetched bookings", fetchedBooking);
-                    console.log({ decoded });
                     if (!fetchedBooking) {
                         return (0, sendResponse_1.default)(res, {
                             success: false,
