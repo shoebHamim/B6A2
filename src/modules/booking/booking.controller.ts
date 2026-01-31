@@ -84,7 +84,7 @@ const updateBookingById = async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
     const { bookingId } = req.params;
-    const result = await bookingServices.updateBookingById(
+    const { result, message } = await bookingServices.updateBookingById(
       bookingId as string,
       status,
     );
@@ -92,7 +92,7 @@ const updateBookingById = async (req: Request, res: Response) => {
       sendResponse(res, {
         success: true,
         statusCode: 200,
-        message: "Booking updated successfully",
+        message: message || "Booking updated successfully",
         data: result,
       });
     } else {

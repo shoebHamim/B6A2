@@ -127,7 +127,6 @@ const deleteVehicleById = async (req: Request, res: Response) => {
         success: true,
         statusCode: 201,
         message: "Vehicle deleted successfully",
-        data: [],
       });
     } else {
       sendResponse(res, {

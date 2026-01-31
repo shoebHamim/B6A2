@@ -79,7 +79,7 @@ const updateBookingById = async (bookingId: string, bookingStatus: string) => {
       [bookingStatus, bookingId],
     );
     if (!result.rowCount) return null;
-
+    // update vehicle status in case of returned/cancelled status
     if (bookingStatus === "returned" || bookingStatus === "cancelled") {
       await client.query(
         `UPDATE vehicles 
@@ -87,13 +87,20 @@ const updateBookingById = async (bookingId: string, bookingStatus: string) => {
        WHERE id = $1`,
         [result.rows[0].vehicle_id],
       );
-      result.rows[0]["vehicle"] = {
-        availability_status: "available",
-      };
     }
     await client.query("COMMIT");
 
-    return result.rows[0];
+    let message;
+    if (bookingStatus === "returned") {
+      message = "Booking marked as returned. Vehicle is now available";
+      result.rows[0]["vehicle"] = {
+        availability_status: "available",
+      };
+    } else if (bookingStatus === "cancelled") {
+      message = "Booking cancelled successfully";
+    }
+
+    return { result: result.rows[0], message };
   } catch (error) {
     await client.query("ROLLBACK");
     throw new Error(
