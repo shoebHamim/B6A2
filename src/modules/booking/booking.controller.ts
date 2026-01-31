@@ -98,9 +98,9 @@ const updateBookingById = async (req: Request, res: Response) => {
     } else {
       sendResponse(res, {
         success: false,
-        statusCode: 400,
-        message: "Update failed or no vehicle found with the provided ID",
-        data: {},
+        statusCode: 500,
+        message: "Booking update failed",
+        errors: "Internal Server error",
       });
     }
   } catch (error) {

@@ -2,9 +2,9 @@ import cron from "node-cron";
 import { pool } from "../config/db";
 
 const startBookingScheduler = async () => {
-  // cronjob will run every hour on 0 minute
+  // cronjob will at everyday at midnight
   cron.schedule(
-    "0 * * * *",
+    "0 0 * * *",
     async () => {
       const client = await pool.connect();
       try {

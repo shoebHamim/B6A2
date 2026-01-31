@@ -48,8 +48,6 @@ const auth = (...allowedRoles: string[]) => {
           const fetchedBooking = await bookingServices.getBookingById(
             bookingId as string,
           );
-          console.log("fetched bookings", fetchedBooking);
-          console.log({ decoded });
           if (!fetchedBooking) {
             return sendResponse(res, {
               success: false,
