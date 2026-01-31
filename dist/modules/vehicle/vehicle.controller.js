@@ -127,7 +127,6 @@ const deleteVehicleById = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 success: true,
                 statusCode: 201,
                 message: "Vehicle deleted successfully",
-                data: [],
             });
         }
         else {

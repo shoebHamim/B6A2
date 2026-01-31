@@ -78,7 +78,7 @@ const updateBookingById = async (bookingId: string, bookingStatus: string) => {
       `,
       [bookingStatus, bookingId],
     );
-    if (!result.rowCount) return null;
+    if (!result.rowCount) return {result:null,message:null};
     // update vehicle status in case of returned/cancelled status
     if (bookingStatus === "returned" || bookingStatus === "cancelled") {
       await client.query(

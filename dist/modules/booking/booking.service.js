@@ -73,17 +73,25 @@ const updateBookingById = (bookingId, bookingStatus) => __awaiter(void 0, void 0
       RETURNING id,customer_id,vehicle_id,rent_start_date::TEXT,rent_end_date::TEXT,total_price,status
       `, [bookingStatus, bookingId]);
         if (!result.rowCount)
-            return null;
+            return { result: null, message: null };
+        // update vehicle status in case of returned/cancelled status
         if (bookingStatus === "returned" || bookingStatus === "cancelled") {
             yield client.query(`UPDATE vehicles 
        SET availability_status = 'available' 
        WHERE id = $1`, [result.rows[0].vehicle_id]);
+        }
+        yield client.query("COMMIT");
+        let message;
+        if (bookingStatus === "returned") {
+            message = "Booking marked as returned. Vehicle is now available";
             result.rows[0]["vehicle"] = {
                 availability_status: "available",
             };
         }
-        yield client.query("COMMIT");
-        return result.rows[0];
+        else if (bookingStatus === "cancelled") {
+            message = "Booking cancelled successfully";
+        }
+        return { result: result.rows[0], message };
     }
     catch (error) {
         yield client.query("ROLLBACK");

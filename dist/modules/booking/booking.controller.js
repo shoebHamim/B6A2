@@ -90,12 +90,12 @@ const updateBookingById = (req, res) => __awaiter(void 0, void 0, void 0, functi
     try {
         const { status } = req.body;
         const { bookingId } = req.params;
-        const result = yield booking_service_1.bookingServices.updateBookingById(bookingId, status);
+        const { result, message } = yield booking_service_1.bookingServices.updateBookingById(bookingId, status);
         if (result) {
             (0, sendResponse_1.default)(res, {
                 success: true,
                 statusCode: 200,
-                message: "Booking updated successfully",
+                message: message || "Booking updated successfully",
                 data: result,
             });
         }
