@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsx watch src/server.ts",
-    "format": "npx prettier --write 'src/**/*.{ts,js,json,css,md}' "
+    "format": "npx prettier --write 'src/**/*.{ts,js,json,css,md}'",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
