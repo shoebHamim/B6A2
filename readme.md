@@ -166,33 +166,503 @@ npm run format
 - **Development:** `http://localhost:3000`
 - **Production:** `https://b6-a2-gold.vercel.app/`
 
-### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - User login
+---
 
-### Users
-- `GET /api/v1/users` - Get all users (Admin only)
-- `PUT /api/v1/users/:userId` - Update user by ID
-- `DELETE /api/v1/users/:userId` - Delete user by ID
+### 🔐 Authentication
 
-### Vehicles
-- `GET /api/v1/vehicles` - Get all vehicles
-- `GET /api/v2/vehicle/:vehicleId` - Get vehicle by ID
-- `POST /api/v1/vehicles` - Create vehicle (Admin only)
-- `PUT /api/v1/vehicles/:vehicleId` - Update vehicle (Admin only)
-- `DELETE /api/v1/vehicles/:vehicleId` - Delete vehicle (Admin only)
+#### 1. Register New User
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+```
 
-### Bookings
-- `POST /api/v1/bookings` - Create booking (Authenticated)
-- `GET /api/v1/bookings` - Get bookings (Admin: all, Customer: own)
-- `PUT /api/v1/bookings/:bookingId` - Update booking status (Admin: all, Customer: own)
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "phone": "+8801234567890",
+  "role": "customer"
+}
+```
+- `role` is optional. Values: `"customer"` (default) or `"admin"`
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "User registered successfully",
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+8801234567890",
+    "role": "customer"
+  }
+}
+```
+
+**Validation:**
+- Password must be at least 6 characters
 
 ---
+
+#### 2. User Login
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Login successful",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "+8801234567890",
+      "role": "customer"
+    }
+  }
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "message": "Incorrect email or password",
+  "errors": []
+}
+```
+
+---
+
+### 👥 Users
+
+#### 3. Get All Users (Admin Only)
+```http
+GET /api/v1/users
+Authorization: Bearer <token>
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Users retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "+8801234567890",
+      "role": "customer"
+    }
+  ]
+}
+```
+
+---
+
+#### 4. Update User
+```http
+PUT /api/v1/users/:userId
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+- Both Admin and Customer can update users
+- Customers can update their own profile
+
+**Request Body** (all fields optional):
+```json
+{
+  "name": "John Updated",
+  "email": "johnupdated@example.com",
+  "phone": "+8801987654321",
+  "role": "customer"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "User updated successfully",
+  "data": {
+    "id": 1,
+    "name": "John Updated",
+    "email": "johnupdated@example.com",
+    "phone": "+8801987654321",
+    "role": "customer"
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": true,
+  "statusCode": 404,
+  "message": "No user found with the id!",
+  "errors": []
+}
+```
+
+---
+
+#### 5. Delete User (Admin Only)
+```http
+DELETE /api/v1/users/:userId
+Authorization: Bearer <token>
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Users deleted successfully"
+}
+```
+
+**Error Response (400) - Has Active Bookings:**
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "Failed to delete User",
+  "errors": "User has active booking"
+}
+```
+
+**Error Response (404) - User Not Found:**
+```json
+{
+  "success": false,
+  "statusCode": 404,
+  "message": "Failed to delete User",
+  "errors": "No user found"
+}
+```
+
+---
+
+### 🚗 Vehicles
+
+#### 6. Get All Vehicles
+```http
+GET /api/v1/vehicles
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Vehicles retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "vehicle_name": "Toyota Camry",
+      "type": "Sedan",
+      "registration_number": "DHK-1234",
+      "daily_rent_price": 5000,
+      "availability_status": "available"
+    }
+  ]
+}
+```
+
+---
+
+#### 7. Get Vehicle by ID
+```http
+GET /api/v1/vehicles/:vehicleId
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Vehicle retrieved successfully",
+  "data": {
+    "id": 1,
+    "vehicle_name": "Toyota Camry",
+    "type": "Sedan",
+    "registration_number": "DHK-1234",
+    "daily_rent_price": 5000,
+    "availability_status": "available"
+  }
+}
+```
+
+---
+
+#### 8. Create Vehicle (Admin Only)
+```http
+POST /api/v1/vehicles
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "vehicle_name": "Toyota Camry",
+  "type": "Sedan",
+  "registration_number": "DHK-1234",
+  "daily_rent_price": 5000,
+  "availability_status": "available"
+}
+```
+- `availability_status`: `"available"` or `"booked"`
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Vehicle created successfully",
+  "data": {
+    "id": 1,
+    "vehicle_name": "Toyota Camry",
+    "type": "Sedan",
+    "registration_number": "DHK-1234",
+    "daily_rent_price": 5000,
+    "availability_status": "available"
+  }
+}
+```
+
+---
+
+#### 9. Update Vehicle (Admin Only)
+```http
+PUT /api/v1/vehicles/:vehicleId
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body** (all fields optional):
+```json
+{
+  "vehicle_name": "Toyota Camry 2024",
+  "type": "Sedan",
+  "registration_number": "DHK-1234",
+  "daily_rent_price": 5500,
+  "availability_status": "available"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Vehicle updated successfully",
+  "data": {
+    "id": 1,
+    "vehicle_name": "Toyota Camry 2024",
+    "type": "Sedan",
+    "registration_number": "DHK-1234",
+    "daily_rent_price": 5500,
+    "availability_status": "available"
+  }
+}
+```
+
+---
+
+#### 10. Delete Vehicle (Admin Only)
+```http
+DELETE /api/v1/vehicles/:vehicleId
+Authorization: Bearer <token>
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Vehicle deleted successfully"
+}
+```
+
+**Error Response (400) - Has Active Bookings:**
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "Vehicle deletion failed",
+  "errors": "This vehicle has active booking"
+}
+```
+
+---
+
+### 📅 Bookings
+
+#### 11. Create Booking (Authenticated)
+```http
+POST /api/v1/bookings
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "customer_id": 1,
+  "vehicle_id": 5,
+  "rent_start_date": "2026-02-01",
+  "rent_end_date": "2026-02-05"
+}
+```
+- Date format: `YYYY-MM-DD`
+- `rent_end_date` must be after `rent_start_date`
+- Vehicle must be available
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Booking created successfully",
+  "data": {
+    "id": 10,
+    "customer_id": 1,
+    "vehicle_id": 5,
+    "rent_start_date": "2026-02-01",
+    "rent_end_date": "2026-02-05",
+    "total_price": 20000,
+    "status": "active",
+    "vehicle": {
+      "vehicle_name": "Toyota Camry",
+      "daily_rent_price": 5000
+    }
+  }
+}
+```
+- `total_price` is automatically calculated based on rental days × daily_rent_price
+
+---
+
+#### 12. Get All Bookings
+```http
+GET /api/v1/bookings
+Authorization: Bearer <token>
+```
+- **Admin**: Returns all bookings
+- **Customer**: Returns only their own bookings
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Bookings retrieved successfully",
+  "data": [
+    {
+      "id": 10,
+      "customer_id": 1,
+      "vehicle_id": 5,
+      "rent_start_date": "2026-02-01",
+      "rent_end_date": "2026-02-05",
+      "total_price": 20000,
+      "status": "active"
+    }
+  ]
+}
+```
+
+---
+
+#### 13. Update Booking Status
+```http
+PUT /api/v1/bookings/:bookingId
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "status": "returned"
+}
+```
+- Status values: `"active"`, `"cancelled"`, or `"returned"`
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Booking updated successfully",
+  "data": {
+    "id": 10,
+    "customer_id": 1,
+    "vehicle_id": 5,
+    "rent_start_date": "2026-02-01",
+    "rent_end_date": "2026-02-05",
+    "total_price": 20000,
+    "status": "returned",
+    "vehicle": {
+      "availability_status": "available"
+    }
+  }
+}
+```
+- When status is changed to `"returned"` or `"cancelled"`, the vehicle automatically becomes available
+
+---
+
+### 🔒 Authentication Headers
+
+All protected endpoints require a JWT token in the Authorization header:
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+### ⚠️ Error Response Format
+
+All endpoints return errors in this format:
+
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "Error description",
+  "errors": "Detailed error message or validation errors"
+}
+```
 
 ## ⚙️ Automated Features
 
 ### Booking Auto-Return System
-The system includes a scheduled job that runs **every hour midnight (Asia/Dhaka timezone)**:
+The system includes a scheduled job that runs **every day at midnight (Asia/Dhaka timezone)**:
 - Identifies all active bookings where `rent_end_date` has passed
 - Automatically updates their status to "returned"
 - Releases associated vehicles back to "available" status

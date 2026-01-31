@@ -85,7 +85,7 @@ const updateVehicleById = async (req: Request, res: Response) => {
     if (result) {
       sendResponse(res, {
         success: true,
-        statusCode: 201,
+        statusCode: 200,
         message: "Vehicle updated successfully",
         data: result,
       });
@@ -125,7 +125,7 @@ const deleteVehicleById = async (req: Request, res: Response) => {
     if (result) {
       sendResponse(res, {
         success: true,
-        statusCode: 201,
+        statusCode: 200,
         message: "Vehicle deleted successfully",
       });
     } else {
